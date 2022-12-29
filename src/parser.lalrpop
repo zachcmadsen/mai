@@ -59,7 +59,7 @@ Constant: Constant = {
 
 extern {
     type Location = usize;
-    type Error = ();
+    type Error = anyhow::Error;
 
     enum Token {
         // Keywords

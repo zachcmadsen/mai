@@ -1,3 +1,6 @@
+use std::fmt;
+
+use anyhow::{anyhow, Result};
 use logos::Logos;
 
 #[derive(Clone, Debug, Logos)]
@@ -68,10 +71,6 @@ pub enum Token {
     #[token("while")]
     While,
 
-    // Constants
-    #[regex("[1-9][0-9]*", |lex| lex.slice().parse::<i64>().unwrap())]
-    Integer(i64),
-
     // Operators
     #[token("=")]
     Equal,
@@ -80,19 +79,23 @@ pub enum Token {
     #[token("*")]
     Star,
 
-    // Separators
-    #[token(";")]
-    Semi,
-    #[token("(")]
-    LeftParen,
-    #[token(")")]
-    RightParen,
-    #[token("{")]
-    LeftBrace,
-    #[token("}")]
-    RightBrace,
+    // Punctuators
     #[token(",")]
     Comma,
+    #[token("{")]
+    LeftBrace,
+    #[token("(")]
+    LeftParen,
+    #[token("}")]
+    RightBrace,
+    #[token(")")]
+    RightParen,
+    #[token(";")]
+    Semi,
+
+    // Constants
+    #[regex("[1-9][0-9]*", |lex| lex.slice().parse::<i64>().unwrap())]
+    Integer(i64),
 
     #[regex("[a-zA-Z_][a-zA-Z0-9_]*", |lex| lex.slice().to_string())]
     Identifier(String),
@@ -100,6 +103,66 @@ pub enum Token {
     #[error]
     #[regex(r"[ \n\t]+", logos::skip)]
     Error,
+}
+
+impl fmt::Display for Token {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let token_name = match self {
+            Token::Auto => "auto",
+            Token::Break => "break",
+            Token::Case => "case",
+            Token::Char => "char",
+            Token::Const => "const",
+            Token::Continue => "continue",
+            Token::Default => "default",
+            Token::Do => "do",
+            Token::Double => "double",
+            Token::Else => "else",
+            Token::Enum => "enum",
+            Token::Extern => "extern",
+            Token::Float => "float",
+            Token::For => "for",
+            Token::Goto => "goto",
+            Token::If => "if",
+            Token::Int => "int",
+            Token::Long => "long",
+            Token::Register => "register",
+            Token::Return => "return",
+            Token::Short => "short",
+            Token::Signed => "signed",
+            Token::Sizeof => "sizeof",
+            Token::Static => "static",
+            Token::Struct => "struct",
+            Token::Switch => "switch",
+            Token::Typedef => "typedef",
+            Token::Union => "union",
+            Token::Unsigned => "unsigned",
+            Token::Void => "void",
+            Token::Volatile => "volatile",
+            Token::While => "while",
+
+            Token::Equal => "=",
+            Token::Plus => "+",
+            Token::Star => "*",
+
+            Token::Comma => ",",
+            Token::Semi => ";",
+            Token::LeftBrace => "{",
+            Token::LeftParen => "(",
+            Token::RightBrace => "}",
+            Token::RightParen => ")",
+
+            Token::Integer(_) => "integer literal",
+
+            Token::Identifier(_) => "identifier",
+
+            Token::Error => {
+                unreachable!("Error tokens shouldn't be displayed")
+            }
+        };
+
+        write!(f, "{}", token_name)
+    }
 }
 
 pub struct Lexer<'a> {
@@ -115,11 +178,14 @@ impl<'a> Lexer<'a> {
 }
 
 impl<'a> Iterator for Lexer<'a> {
-    type Item = Result<(usize, Token, usize), ()>;
+    type Item = Result<(usize, Token, usize)>;
 
     fn next(&mut self) -> Option<Self::Item> {
-        // TODO: Handle Error tokens.
         match self.inner.next() {
+            Some(Token::Error) => Some(Err(anyhow!(
+                "unexpected character(s) '{}'",
+                self.inner.slice()
+            ))),
             Some(token) => {
                 let span = self.inner.span();
                 Some(Ok((span.start, token, span.end)))

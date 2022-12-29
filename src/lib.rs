@@ -1,27 +1,28 @@
 pub mod ast;
 pub mod backend;
 pub mod lexer;
+pub mod parser;
 
 use std::io::Write;
 use std::process::Command;
 
-use lalrpop_util::lalrpop_mod;
+use anyhow::{Context, Result};
 
 use crate::backend::Backend;
 use crate::lexer::Lexer;
 
-lalrpop_mod!(pub parser);
-
-pub fn run(source: &str) {
+pub fn run(source: &str) -> Result<()> {
     let lexer = Lexer::new(&source);
-    let function_definition = parser::FunctionDefinitionParser::new()
-        .parse(lexer)
-        .unwrap();
-    let bytes = Backend::new(function_definition).compile();
+    let ast = parser::parse(lexer)?;
+    let bytes = Backend::new(ast).compile();
 
-    let mut file = tempfile::NamedTempFile::new().unwrap();
-    file.write_all(&bytes).unwrap();
+    let mut file = tempfile::NamedTempFile::new()
+        .context("failed to create a temporary object file")?;
+    file.write_all(&bytes)
+        .context("failed to write to an object file")?;
 
     // TODO: Handle unsuccessful statuses.
-    Command::new("gcc").args([file.as_ref()]).status().unwrap();
+    Command::new("gcc").args([file.as_ref()]).status()?;
+
+    Ok(())
 }
