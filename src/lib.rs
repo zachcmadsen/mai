@@ -14,7 +14,10 @@ use crate::lexer::Lexer;
 pub fn run(source: &str) -> Result<()> {
     let lexer = Lexer::new(source);
     let ast = parser::parse(lexer)?;
-    let bytes = Backend::new(ast).compile();
+    let bytes = Backend::new(ast)
+        .context("failed to initialize backend")?
+        .compile()
+        .context("failed to compile")?;
 
     let mut file = tempfile::NamedTempFile::new()
         .context("failed to create a temporary object file")?;

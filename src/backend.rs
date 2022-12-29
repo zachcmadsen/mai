@@ -1,3 +1,4 @@
+use anyhow::Result;
 use cranelift::prelude::*;
 use cranelift_module::{Linkage, Module};
 use cranelift_object::{ObjectBuilder, ObjectModule};
@@ -15,27 +16,24 @@ pub struct Backend {
 }
 
 impl Backend {
-    pub fn new(ast: FunctionDefinition) -> Backend {
+    pub fn new(ast: FunctionDefinition) -> Result<Backend> {
         let flags_builder = settings::builder();
-        let isa = isa::lookup(HOST_TRIPLE)
-            .unwrap()
-            .finish(settings::Flags::new(flags_builder))
-            .unwrap();
+        let isa = isa::lookup(HOST_TRIPLE)?
+            .finish(settings::Flags::new(flags_builder))?;
         let builder = ObjectBuilder::new(
             isa,
             // TODO: Does the name matter?
             "main",
             cranelift_module::default_libcall_names(),
-        )
-        .unwrap();
+        )?;
 
-        Backend {
+        Ok(Backend {
             ast,
             module: ObjectModule::new(builder),
-        }
+        })
     }
 
-    pub fn compile(mut self) -> Vec<u8> {
+    pub fn compile(mut self) -> Result<Vec<u8>> {
         let mut context = self.module.make_context();
 
         let return_type = match self.ast.return_type {
@@ -76,19 +74,16 @@ impl Backend {
 
         function_builder.finalize();
 
-        let func_id = self
-            .module
-            .declare_function(
-                &self.ast.name,
-                Linkage::Export,
-                &context.func.signature,
-            )
-            .unwrap();
-        self.module.define_function(func_id, &mut context).unwrap();
+        let func_id = self.module.declare_function(
+            &self.ast.name,
+            Linkage::Export,
+            &context.func.signature,
+        )?;
+        self.module.define_function(func_id, &mut context)?;
 
         self.module.clear_context(&mut context);
 
-        self.module.finish().emit().unwrap()
+        Ok(self.module.finish().emit()?)
     }
 }
 
