@@ -61,10 +61,10 @@ impl Backend {
         for statement in self.ast.body.0.clone() {
             match statement {
                 Statement::Expr(expr) => {
-                    self.compile_expr(&mut function_builder, expr);
+                    compile_expr(&mut function_builder, expr);
                 }
                 Statement::Return(Some(expr)) => {
-                    let value = self.compile_expr(&mut function_builder, expr);
+                    let value = compile_expr(&mut function_builder, expr);
                     function_builder.ins().return_(&[value]);
                 }
                 Statement::Return(None) => {
@@ -90,22 +90,18 @@ impl Backend {
 
         self.module.finish().emit().unwrap()
     }
+}
 
-    fn compile_expr<'a>(
-        &mut self,
-        function_builder: &mut FunctionBuilder<'a>,
-        expr: Expr,
-    ) -> Value {
-        match expr {
-            Expr::Add(lhs, rhs) => {
-                let lhs = self.compile_expr(function_builder, *lhs);
-                let rhs = self.compile_expr(function_builder, *rhs);
-                function_builder.ins().iadd(lhs, rhs)
-            }
-            Expr::Constant(Constant::Integer(i)) => {
-                function_builder.ins().iconst(types::I32, i)
-            }
-            _ => unimplemented!(),
+fn compile_expr(function_builder: &mut FunctionBuilder, expr: Expr) -> Value {
+    match expr {
+        Expr::Add(lhs, rhs) => {
+            let lhs = compile_expr(function_builder, *lhs);
+            let rhs = compile_expr(function_builder, *rhs);
+            function_builder.ins().iadd(lhs, rhs)
         }
+        Expr::Constant(Constant::Integer(i)) => {
+            function_builder.ins().iconst(types::I32, i)
+        }
+        _ => unimplemented!(),
     }
 }

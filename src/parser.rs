@@ -6,7 +6,10 @@ use crate::{
     lexer::{Lexer, Token},
 };
 
-lalrpop_mod!(parser);
+lalrpop_mod!(
+    #[allow(clippy::all)]
+    parser
+);
 
 pub fn parse(lexer: Lexer) -> Result<FunctionDefinition> {
     parser::FunctionDefinitionParser::new()

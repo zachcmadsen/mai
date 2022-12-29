@@ -12,7 +12,7 @@ use crate::backend::Backend;
 use crate::lexer::Lexer;
 
 pub fn run(source: &str) -> Result<()> {
-    let lexer = Lexer::new(&source);
+    let lexer = Lexer::new(source);
     let ast = parser::parse(lexer)?;
     let bytes = Backend::new(ast).compile();
 
