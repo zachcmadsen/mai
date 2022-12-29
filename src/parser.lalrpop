@@ -1,0 +1,87 @@
+use crate::{
+    ast::{
+        CompoundStatement, Constant, Expr, FunctionDefinition, Statement,
+        TypeSpecifier,
+    },
+    lexer::Token,
+};
+
+grammar<'a>;
+
+pub FunctionDefinition: FunctionDefinition =
+    <return_type:TypeSpecifier> <name:Identifier> LeftParen RightParen <body:CompoundStatement> => FunctionDefinition {<>};
+
+TypeSpecifier: TypeSpecifier = {
+    Int => TypeSpecifier::Int,
+}
+
+Statement = {
+    ExpressionStatement,
+    CompoundStatement => Statement::Compound(<>),
+    JumpStatement,
+}
+
+ExpressionStatement: Statement =
+    <AssignmentExpression> Semi => Statement::Expr(<>);
+
+CompoundStatement: CompoundStatement =
+    LeftBrace <StatementList> RightBrace => CompoundStatement(<>);
+
+StatementList: Vec<Statement> = {
+    <Statement> => vec![<>],
+    <mut sl:StatementList> <s:Statement> => {
+        sl.push(s);
+        sl
+    },
+};
+
+JumpStatement: Statement =
+    Return <AssignmentExpression?> Semi => Statement::Return(<>);
+
+AssignmentExpression = {
+    AdditiveExpression,
+    <t:TypeSpecifier> <i:Identifier> Equal <e:AssignmentExpression> => Expr::Assignment(t, i, Box::new(e)),
+};
+
+AdditiveExpression = {
+    PrimaryExpression,
+    <a:AdditiveExpression> Plus <b:PrimaryExpression> => Expr::Add(Box::new(a), Box::new(b)),
+};
+
+PrimaryExpression: Expr = {
+    Identifier => Expr::Identifier(<>),
+    Constant => Expr::Constant(<>),
+};
+
+Constant: Constant = {
+    Integer => Constant::Integer(<>),
+};
+
+extern {
+    type Location = usize;
+    type Error = ();
+
+    enum Token {
+        // Keywords
+        Int => Token::Int,
+        Return => Token::Return,
+
+        // Operators
+        Equal => Token::Equal,
+        Plus => Token::Plus,
+        Star => Token::Star,
+
+        // Separators
+        Semi => Token::Semi,
+        LeftParen => Token::LeftParen,
+        RightParen => Token::RightParen,
+        LeftBrace => Token::LeftBrace,
+        RightBrace => Token::RightBrace,
+        Comma => Token::Comma,
+
+        // Literals
+        Integer => Token::Integer(<i64>),
+
+        Identifier => Token::Identifier(<String>),
+    }
+}

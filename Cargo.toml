@@ -1,0 +1,20 @@
+[package]
+name = "mai"
+version = "0.1.0"
+edition = "2021"
+
+[build-dependencies]
+lalrpop = "0.19.8"
+
+[dependencies]
+clap = { version = "4.0.32", features = ["derive"] }
+cranelift = "0.91.0"
+cranelift-module = "0.91.0"
+cranelift-object = "0.91.0"
+lalrpop-util = "0.19.8"
+logos = "0.12.1"
+target-lexicon = "0.12.5"
+tempfile = "3.3.0"
+
+[profile.release]
+lto = "thin"
