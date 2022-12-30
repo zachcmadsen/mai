@@ -94,7 +94,7 @@ pub enum Token {
     Semi,
 
     // Constants
-    #[regex("[1-9][0-9]*", |lex| lex.slice().parse::<i64>().unwrap())]
+    #[regex("(0|[1-9][0-9]*)", |lex| lex.slice().parse::<i64>().unwrap())]
     Integer(i64),
 
     #[regex("[a-zA-Z_][a-zA-Z0-9_]*", |lex| lex.slice().to_string())]
