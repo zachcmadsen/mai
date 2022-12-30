@@ -1,4 +1,4 @@
-#[derive(Debug)]
+#[derive(Clone, Debug)]
 pub struct FunctionDefinition {
     pub return_type: TypeSpecifier,
     pub name: String,
@@ -24,7 +24,6 @@ pub enum Statement {
 pub enum Expr {
     Assignment(TypeSpecifier, String, Box<Expr>),
     Add(Box<Expr>, Box<Expr>),
-    Mul(Box<Expr>, Box<Expr>),
     Constant(Constant),
     Identifier(String),
 }
