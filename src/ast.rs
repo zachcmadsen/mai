@@ -27,6 +27,7 @@ pub enum ExprKind {
 #[derive(Clone, Debug)]
 pub enum BinOpKind {
     Add,
+    Sub,
 }
 
 #[derive(Clone, Debug)]

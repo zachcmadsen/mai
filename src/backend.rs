@@ -97,9 +97,14 @@ fn compile_expr(
             let rhs = compile_expr(function_builder, *rhs);
             function_builder.ins().iadd(lhs, rhs)
         }
+        ExprKind::Binary(BinOpKind::Sub, lhs, rhs) => {
+            let lhs = compile_expr(function_builder, *lhs);
+            let rhs = compile_expr(function_builder, *rhs);
+            function_builder.ins().isub(lhs, rhs)
+        }
         ExprKind::Constant(Constant::Integer(i)) => {
             function_builder.ins().iconst(types::I32, i)
         }
-        _ => unimplemented!(),
+        ExprKind::Identifier(_) => todo!(),
     }
 }

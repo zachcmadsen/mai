@@ -40,6 +40,7 @@ JumpStatement: Statement =
 AdditiveExpression = {
     PrimaryExpression,
     <a:AdditiveExpression> Plus <b:PrimaryExpression> => ExprKind::Binary(BinOpKind::Add, Box::new(a), Box::new(b)),
+    <a:AdditiveExpression> Minus <b:PrimaryExpression> => ExprKind::Binary(BinOpKind::Sub, Box::new(a), Box::new(b)),
 };
 
 PrimaryExpression: ExprKind = {
@@ -61,6 +62,7 @@ extern {
         Return => Token::Return,
 
         // Operators
+        Minus => Token::Minus,
         Plus => Token::Plus,
         
         // Punctuators

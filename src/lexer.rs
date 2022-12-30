@@ -72,6 +72,8 @@ pub enum Token {
     While,
 
     // Operators
+    #[token("-")]
+    Minus,
     #[token("+")]
     Plus,
 
@@ -137,6 +139,7 @@ impl fmt::Display for Token {
             Token::Volatile => "volatile",
             Token::While => "while",
 
+            Token::Minus => "-",
             Token::Plus => "+",
 
             Token::Comma => ",",
