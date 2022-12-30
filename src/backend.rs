@@ -105,6 +105,5 @@ fn compile_expr(
         ExprKind::Constant(Constant::Integer(i)) => {
             function_builder.ins().iconst(types::I32, i)
         }
-        ExprKind::Identifier(_) => todo!(),
     }
 }

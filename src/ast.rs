@@ -21,7 +21,6 @@ pub enum Statement {
 pub enum ExprKind {
     Binary(BinOpKind, Box<ExprKind>, Box<ExprKind>),
     Constant(Constant),
-    Identifier(String),
 }
 
 #[derive(Clone, Debug)]

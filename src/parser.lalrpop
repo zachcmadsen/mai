@@ -44,7 +44,6 @@ AdditiveExpression = {
 };
 
 PrimaryExpression: ExprKind = {
-    Identifier => ExprKind::Identifier(<>),
     Constant => ExprKind::Constant(<>),
 };
 
