@@ -61,11 +61,9 @@ extern {
         Return => Token::Return,
 
         // Operators
-        Equal => Token::Equal,
         Plus => Token::Plus,
-        Star => Token::Star,
-
-        // Separators
+        
+        // Punctuators
         Semi => Token::Semi,
         LeftParen => Token::LeftParen,
         RightParen => Token::RightParen,

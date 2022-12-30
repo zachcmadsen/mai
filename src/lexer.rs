@@ -72,12 +72,8 @@ pub enum Token {
     While,
 
     // Operators
-    #[token("=")]
-    Equal,
     #[token("+")]
     Plus,
-    #[token("*")]
-    Star,
 
     // Punctuators
     #[token(",")]
@@ -141,9 +137,7 @@ impl fmt::Display for Token {
             Token::Volatile => "volatile",
             Token::While => "while",
 
-            Token::Equal => "=",
             Token::Plus => "+",
-            Token::Star => "*",
 
             Token::Comma => ",",
             Token::Semi => ";",
