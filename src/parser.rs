@@ -25,6 +25,7 @@ pub fn parse(lexer: Lexer) -> Result<FunctionDefinition> {
                     anyhow!("unexpected '{}'", token)
                 }
             }
+            ParseError::User { error } => error,
             _ => unimplemented!(),
         })
 }
