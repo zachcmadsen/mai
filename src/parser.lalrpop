@@ -1,6 +1,6 @@
 use crate::{
     ast::{
-        CompoundStatement, Constant, Expr, FunctionDefinition, Statement,
+        BinOpKind, Constant, ExprKind, FunctionDefinition, Statement,
         TypeSpecifier,
     },
     lexer::Token,
@@ -22,10 +22,9 @@ Statement = {
 }
 
 ExpressionStatement: Statement =
-    <AssignmentExpression> Semi => Statement::Expr(<>);
+    <AdditiveExpression> Semi => Statement::Expr(<>);
 
-CompoundStatement: CompoundStatement =
-    LeftBrace <StatementList> RightBrace => CompoundStatement(<>);
+CompoundStatement = LeftBrace <StatementList> RightBrace;
 
 StatementList: Vec<Statement> = {
     <Statement> => vec![<>],
@@ -36,21 +35,16 @@ StatementList: Vec<Statement> = {
 };
 
 JumpStatement: Statement =
-    Return <AssignmentExpression?> Semi => Statement::Return(<>);
-
-AssignmentExpression = {
-    AdditiveExpression,
-    <t:TypeSpecifier> <i:Identifier> Equal <e:AssignmentExpression> => Expr::Assignment(t, i, Box::new(e)),
-};
+    Return <AdditiveExpression?> Semi => Statement::Return(<>);
 
 AdditiveExpression = {
     PrimaryExpression,
-    <a:AdditiveExpression> Plus <b:PrimaryExpression> => Expr::Add(Box::new(a), Box::new(b)),
+    <a:AdditiveExpression> Plus <b:PrimaryExpression> => ExprKind::Binary(BinOpKind::Add, Box::new(a), Box::new(b)),
 };
 
-PrimaryExpression: Expr = {
-    Identifier => Expr::Identifier(<>),
-    Constant => Expr::Constant(<>),
+PrimaryExpression: ExprKind = {
+    Identifier => ExprKind::Identifier(<>),
+    Constant => ExprKind::Constant(<>),
 };
 
 Constant: Constant = {

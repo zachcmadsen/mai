@@ -2,7 +2,7 @@
 pub struct FunctionDefinition {
     pub return_type: TypeSpecifier,
     pub name: String,
-    pub body: CompoundStatement,
+    pub body: Vec<Statement>,
 }
 
 #[derive(Clone, Debug)]
@@ -11,21 +11,22 @@ pub enum TypeSpecifier {
 }
 
 #[derive(Clone, Debug)]
-pub struct CompoundStatement(pub Vec<Statement>);
-
-#[derive(Clone, Debug)]
 pub enum Statement {
-    Compound(CompoundStatement),
-    Expr(Expr),
-    Return(Option<Expr>),
+    Compound(Vec<Statement>),
+    Expr(ExprKind),
+    Return(Option<ExprKind>),
 }
 
 #[derive(Clone, Debug)]
-pub enum Expr {
-    Assignment(TypeSpecifier, String, Box<Expr>),
-    Add(Box<Expr>, Box<Expr>),
+pub enum ExprKind {
+    Binary(BinOpKind, Box<ExprKind>, Box<ExprKind>),
     Constant(Constant),
     Identifier(String),
+}
+
+#[derive(Clone, Debug)]
+pub enum BinOpKind {
+    Add,
 }
 
 #[derive(Clone, Debug)]

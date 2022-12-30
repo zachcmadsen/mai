@@ -5,7 +5,8 @@ use cranelift_object::{ObjectBuilder, ObjectModule};
 use target_lexicon::Triple;
 
 use crate::ast::{
-    Constant, Expr, FunctionDefinition, Statement, TypeSpecifier,
+    BinOpKind, Constant, ExprKind, FunctionDefinition, Statement,
+    TypeSpecifier,
 };
 
 const HOST_TRIPLE: Triple = Triple::host();
@@ -55,8 +56,7 @@ impl Backend {
         function_builder.switch_to_block(entry_block);
         function_builder.seal_block(entry_block);
 
-        // TODO: Is it possible to remove this clone?
-        for statement in self.ast.body.0.clone() {
+        for statement in self.ast.body {
             match statement {
                 Statement::Expr(expr) => {
                     compile_expr(&mut function_builder, expr);
@@ -87,14 +87,17 @@ impl Backend {
     }
 }
 
-fn compile_expr(function_builder: &mut FunctionBuilder, expr: Expr) -> Value {
+fn compile_expr(
+    function_builder: &mut FunctionBuilder,
+    expr: ExprKind,
+) -> Value {
     match expr {
-        Expr::Add(lhs, rhs) => {
+        ExprKind::Binary(BinOpKind::Add, lhs, rhs) => {
             let lhs = compile_expr(function_builder, *lhs);
             let rhs = compile_expr(function_builder, *rhs);
             function_builder.ins().iadd(lhs, rhs)
         }
-        Expr::Constant(Constant::Integer(i)) => {
+        ExprKind::Constant(Constant::Integer(i)) => {
             function_builder.ins().iconst(types::I32, i)
         }
         _ => unimplemented!(),
