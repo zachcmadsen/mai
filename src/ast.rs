@@ -1,3 +1,5 @@
+use std::fmt;
+
 #[derive(Clone, Debug)]
 pub struct FunctionDefinition {
     pub return_type: TypeSpecifier,
@@ -31,5 +33,16 @@ pub enum BinOpKind {
 
 #[derive(Clone, Debug)]
 pub enum Constant {
-    Integer(i64),
+    Integer(String),
+}
+
+impl fmt::Display for BinOpKind {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
+        let op = match self {
+            BinOpKind::Add => "+",
+            BinOpKind::Sub => "-",
+        };
+
+        write!(f, "{}", op)
+    }
 }

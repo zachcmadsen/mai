@@ -73,7 +73,7 @@ extern {
         Comma => Token::Comma,
 
         // Literals
-        Integer => Token::Integer(<i64>),
+        Integer => Token::Integer(<String>),
 
         Identifier => Token::Identifier(<String>),
     }
