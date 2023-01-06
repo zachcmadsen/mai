@@ -26,7 +26,7 @@ pub fn run(source: &str) -> Result<()> {
     file.write_all(&bytes)
         .context("failed to write to a file")?;
 
-    Command::new("cc").args([file.as_ref()]).spawn()?;
+    Command::new("cc").args([file.as_ref()]).status()?;
 
     Ok(())
 }
