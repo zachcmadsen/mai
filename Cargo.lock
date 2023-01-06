@@ -575,6 +575,7 @@ name = "mai"
 version = "0.1.0"
 dependencies = [
  "anyhow",
+ "bumpalo",
  "clap",
  "cranelift",
  "cranelift-module",

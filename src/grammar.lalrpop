@@ -1,0 +1,24 @@
+use bumpalo::Bump;
+
+use crate::{ast::Expr, token::Token};
+
+grammar<'a>(arena: &'a Bump);
+
+extern {
+    type Location = usize;
+    type Error = anyhow::Error;
+
+    enum Token<'a> {
+        Integer => Token::Integer(<&'a str>),
+        Plus => Token::Plus,
+    }
+}
+
+pub Expr: &'a Expr<'a> = {
+    Constant,
+    <Constant> Plus <Constant> => arena.alloc(Expr::Add(<>)),
+}
+
+Constant: &'a Expr<'a> = {
+    Integer => arena.alloc(Expr::Integer(<>)),
+}

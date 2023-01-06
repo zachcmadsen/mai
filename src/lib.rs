@@ -1,33 +1,32 @@
-pub mod ast;
-pub mod backend;
-pub mod lexer;
-pub mod parser;
-pub mod tc;
+mod ast;
+mod codegen;
+mod parse;
+mod tast;
+mod tc;
+mod token;
 
 use std::io::Write;
 use std::process::Command;
 
 use anyhow::{Context, Result};
 
-use crate::backend::Backend;
-use crate::lexer::Lexer;
-
 pub fn run(source: &str) -> Result<()> {
-    let lexer = Lexer::new(source);
-    let ast = parser::parse(lexer)?;
-    let tast = tc::tc(ast)?;
-    let bytes = Backend::new(tast)
-        .context("failed to initialize backend")?
-        .compile()
-        .context("failed to compile")?;
+    let ast_arena = bumpalo::Bump::new();
+    let ast = parse::parse(source, &ast_arena)?;
+
+    let tast_arena = bumpalo::Bump::new();
+    let tast = tc::tc(ast, &tast_arena)?;
+    drop(ast_arena);
+
+    let bytes =
+        codegen::gen(tast).context("failed to generate object code")?;
 
     let mut file = tempfile::NamedTempFile::new()
-        .context("failed to create a temporary object file")?;
+        .context("failed to create a temporary file")?;
     file.write_all(&bytes)
-        .context("failed to write to an object file")?;
+        .context("failed to write to a file")?;
 
-    // TODO: Handle unsuccessful statuses.
-    Command::new("gcc").args([file.as_ref()]).status()?;
+    Command::new("cc").args([file.as_ref()]).spawn()?;
 
     Ok(())
 }
