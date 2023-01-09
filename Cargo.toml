@@ -9,6 +9,7 @@ lalrpop = "0.19.8"
 [dependencies]
 anyhow = "1.0.68"
 bumpalo = "3.11.1"
+cc = "1.0.78"
 clap = { version = "4.0.32", features = ["derive"] }
 cranelift = "0.91.0"
 cranelift-module = "0.91.0"

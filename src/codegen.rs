@@ -6,7 +6,7 @@ use target_lexicon::Triple;
 
 use crate::tast::{Expr, ExprKind};
 
-const HOST_TRIPLE: Triple = Triple::host();
+pub const HOST_TRIPLE: Triple = Triple::host();
 
 pub fn gen(expr: &Expr) -> Result<Vec<u8>> {
     let flags_builder = settings::builder();
